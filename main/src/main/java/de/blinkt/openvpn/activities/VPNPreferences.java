@@ -214,7 +214,6 @@ public class VPNPreferences extends BaseActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				removeProfile(mProfile);
 			}
-
 		});
 		dialog.setNegativeButton(android.R.string.no,null);
 		dialog.create().show();

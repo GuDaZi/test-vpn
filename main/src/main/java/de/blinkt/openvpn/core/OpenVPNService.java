@@ -436,8 +436,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return false;
     }
 
+    private static final String TAG = "OpenVPNService";
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        Log.e(TAG, "OpenVpnService onStartCommand: " );
 
         if (intent != null && intent.getBooleanExtra(ALWAYS_SHOW_NOTIFICATION, false))
             mNotificationAlwaysVisible = true;
@@ -446,7 +449,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.addByteCountListener(this);
 
         guiHandler = new Handler(getMainLooper());
-
 
         if (intent != null && PAUSE_VPN.equals(intent.getAction())) {
             if (mDeviceStateReceiver != null)
@@ -459,7 +461,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 mDeviceStateReceiver.userPause(false);
             return START_NOT_STICKY;
         }
-
 
         if (intent != null && START_SERVICE.equals(intent.getAction()))
             return START_NOT_STICKY;

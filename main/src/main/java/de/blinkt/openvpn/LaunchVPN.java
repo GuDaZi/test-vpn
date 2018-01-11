@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -75,9 +76,7 @@ public class LaunchVPN extends Activity {
     public static final String EXTRA_HIDELOG = "de.blinkt.openvpn.showNoLogWindow";
     public static final String CLEARLOG = "clearlogconnect";
 
-
     private static final int START_VPN_PROFILE = 70;
-
 
     private VpnProfile mSelectedProfile;
     private boolean mhideLog = false;
@@ -119,6 +118,9 @@ public class LaunchVPN extends Activity {
         }
     };
 
+    /**
+     * ⑤从这步拿到VPNProfile
+     */
     protected void startVpnFromIntent() {
         // Resolve the intent
 
@@ -127,7 +129,7 @@ public class LaunchVPN extends Activity {
 
         // If the intent is a request to create a shortcut, we'll do that and exit
 
-
+        //看来这个App内置了从shortCut直接开启VPN的功能呢
         if (Intent.ACTION_MAIN.equals(action)) {
             // Check if we need to clear the log
             if (Preferences.getDefaultSharedPreferences(this).getBoolean(CLEARLOG, true))
@@ -148,6 +150,7 @@ public class LaunchVPN extends Activity {
                 showLogWindow();
                 finish();
             } else {
+                Log.e(TAG, "startVpnFromIntent: " );
                 mSelectedProfile = profileToConnect;
                 launchVPN();
             }
@@ -224,6 +227,9 @@ public class LaunchVPN extends Activity {
 
     }
 
+    /**
+     * ⑦看看这里吧
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -236,12 +242,16 @@ public class LaunchVPN extends Activity {
                             ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT);
                     askForPW(needpw);
                 } else {
+                    Log.e(TAG, "True entrance: " );
                     SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
                     boolean showLogWindow = prefs.getBoolean("showlogwindow", true);
 
                     if (!mhideLog && showLogWindow)
                         showLogWindow();
+
+                    //HEDA
                     ProfileManager.updateLRU(this, mSelectedProfile);
+
                     VPNLaunchHelper.startOpenVpn(mSelectedProfile, getBaseContext());
                     finish();
                 }
@@ -299,7 +309,9 @@ public class LaunchVPN extends Activity {
         });
     }
 
+    private static final String TAG = "LaunchVPN";
     void launchVPN() {
+        //VPNProfile
         int vpnok = mSelectedProfile.checkProfile(this);
         if (vpnok != R.string.no_error_found) {
             showConfigErrorDialog(vpnok);
@@ -312,6 +324,7 @@ public class LaunchVPN extends Activity {
         boolean usecm9fix = prefs.getBoolean("useCM9Fix", false);
         boolean loadTunModule = prefs.getBoolean("loadTunModule", false);
 
+        //这里不太懂诶
         if (loadTunModule)
             execeuteSUcmd("insmod /system/lib/modules/tun.ko");
 
@@ -324,6 +337,8 @@ public class LaunchVPN extends Activity {
                     ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT);
             // Start the query
             try {
+                Log.e(TAG, "START_VPN_PROFILE: " + START_VPN_PROFILE );
+
                 startActivityForResult(intent, START_VPN_PROFILE);
             } catch (ActivityNotFoundException ane) {
                 // Shame on you Sony! At least one user reported that
@@ -332,6 +347,7 @@ public class LaunchVPN extends Activity {
                 showLogWindow();
             }
         } else {
+            Log.e(TAG, "launchVPN: error ??" );
             onActivityResult(START_VPN_PROFILE, Activity.RESULT_OK, null);
         }
 
@@ -348,4 +364,5 @@ public class LaunchVPN extends Activity {
             VpnStatus.logException("SU command", e);
         }
     }
+
 }

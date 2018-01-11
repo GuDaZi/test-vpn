@@ -24,6 +24,7 @@ import android.os.PersistableBundle;
 import android.support.annotation.RequiresApi;
 import android.text.Html;
 import android.text.Html.ImageGetter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -75,6 +76,9 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
     private static final String PREF_SORT_BY_LRU = "sortProfilesByLRU";
     private String mLastStatusMessage;
 
+    /**
+     * 更新数据
+     */
     @Override
     public void updateState(String state, String logmessage, final int localizedResId, ConnectionStatus level) {
         getActivity().runOnUiThread(new Runnable() {
@@ -90,6 +94,9 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
     public void setConnectedVPN(String uuid) {
     }
 
+    /**
+     * ①Adapter,点击事件
+     */
     private class VPNArrayAdapter extends ArrayAdapter<VpnProfile> {
 
         public VPNArrayAdapter(Context context, int resource,
@@ -135,11 +142,17 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
         }
     }
 
+    /**
+     * ②开始VPN连接,参数VpnProfile
+     */
+    private static final String TAG = "VPNProfileList";
     private void startOrStopVPN(VpnProfile profile) {
         if (VpnStatus.isVPNActive() && profile.getUUIDString().equals(VpnStatus.getLastConnectedVPNProfile())) {
+            Log.e(TAG, "stopVPN: " );
             Intent disconnectVPN = new Intent(getActivity(), DisconnectVPN.class);
             startActivity(disconnectVPN);
         } else {
+            Log.e(TAG, "startVPN: " );
             startVPN(profile);
         }
     }
@@ -160,6 +173,9 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
     // Shortcut version is increased to refresh all shortcuts
     final static int SHORTCUT_VERSION = 1;
 
+    /**
+     * 这里使用的shortcuts应该是安卓7.1之后的内容
+     */
     @RequiresApi(api = Build.VERSION_CODES.N_MR1)
     void updateDynamicShortcuts() {
         PersistableBundle versionExtras = new PersistableBundle();
@@ -272,7 +288,6 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
 
     class MiniImageGetter implements ImageGetter {
 
-
         @Override
         public Drawable getDrawable(String source) {
             Drawable d = null;
@@ -290,7 +305,6 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
             }
         }
     }
-
 
     @Override
     public void onResume() {
@@ -394,10 +408,18 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
         populateVpnList();
     }
 
+    /**
+     * ③设置Adapter数据
+     */
     private void populateVpnList() {
         boolean sortByLRU = Preferences.getDefaultSharedPreferences(getActivity()).getBoolean(PREF_SORT_BY_LRU, false);
+        //获取VpnProfile的数据
         Collection<VpnProfile> allvpn = getPM().getProfiles();
+        Log.e(TAG, "/<VpnProfile>.size(): " +  allvpn.size());
+
         TreeSet<VpnProfile> sortedset;
+
+        //两种排序方式
         if (sortByLRU)
             sortedset = new TreeSet<>(new VpnProfileLRUComparator());
         else
@@ -501,6 +523,7 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
     }
 
     private void startImportConfig() {
+        Log.e(TAG, "startImportConfig: " );
         Intent intent = new Intent(getActivity(), FileSelect.class);
         intent.putExtra(FileSelect.NO_INLINE_SELECTION, true);
         intent.putExtra(FileSelect.WINDOW_TITLE, R.string.import_configuration_file);
@@ -570,7 +593,9 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
         return ProfileManager.getInstance(getActivity());
     }
 
-
+    /**
+     * ⑥
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -579,18 +604,18 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
             if (mArrayadapter != null && mEditProfile != null)
                 mArrayadapter.remove(mEditProfile);
         } else if (resultCode == RESULT_VPN_DUPLICATE && data != null) {
+            Log.e(TAG, "RESULT_VPN_DUPLICATE: " );
             String profileUUID = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
             VpnProfile profile = ProfileManager.get(getActivity(), profileUUID);
             if (profile != null)
                 onAddOrDuplicateProfile(profile);
         }
 
-
         if (resultCode != Activity.RESULT_OK)
             return;
 
-
         if (requestCode == START_VPN_CONFIG) {
+            Log.e(TAG, "START_VPN_CONFIG: " );
             String configuredVPN = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
 
             VpnProfile profile = ProfileManager.get(getActivity(), configuredVPN);
@@ -599,22 +624,34 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
             setListAdapter();
 
         } else if (requestCode == SELECT_PROFILE) {
+            Log.e(TAG, "SELECT_PROFILE: " );
             String fileData = data.getStringExtra(FileSelect.RESULT_DATA);
             Uri uri = new Uri.Builder().path(fileData).scheme("file").build();
 
             startConfigImport(uri);
+            
         } else if (requestCode == IMPORT_PROFILE) {
+            //HEDA 从转换的页面出来
+            //这里就拿到了VPNProfile的UUID
+            Log.e(TAG, "456: " );
             String profileUUID = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
             mArrayadapter.add(ProfileManager.get(getActivity(), profileUUID));
+
         } else if (requestCode == FILE_PICKER_RESULT_KITKAT) {
+            Log.e(TAG, "123: " );
+            //先拿到Uri , 然后用Uri进行到转换的界面
             if (data != null) {
                 Uri uri = data.getData();
+                //然后逐个设置
                 startConfigImport(uri);
             }
         }
 
     }
 
+    /**
+     * DADA
+     */
     private void startConfigImport(Uri uri) {
         Intent startImport = new Intent(getActivity(), ConfigConverter.class);
         startImport.setAction(ConfigConverter.IMPORT_PROFILE);
@@ -631,8 +668,11 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
         startActivityForResult(vprefintent, START_VPN_CONFIG);
     }
 
+    /**
+     * ④
+     */
     private void startVPN(VpnProfile profile) {
-
+        //在PM存了一下?
         getPM().saveProfile(getActivity(), profile);
 
         Intent intent = new Intent(getActivity(), LaunchVPN.class);
@@ -640,4 +680,5 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
         intent.setAction(Intent.ACTION_MAIN);
         startActivity(intent);
     }
+
 }

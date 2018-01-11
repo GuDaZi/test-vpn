@@ -24,7 +24,6 @@ import de.blinkt.openvpn.VpnProfile;
 
 public class VpnStatus {
 
-
     private static final LinkedList<LogItem> logbuffer;
 
     private static Vector<LogListener> logListener;

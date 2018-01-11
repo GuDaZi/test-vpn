@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
+import android.util.Log;
 
 import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.VpnProfile;
@@ -72,19 +73,18 @@ public class X509Utils {
 		return r;
 	}
 
+    private static final String TAG = "X509Utils";
 
-
-
-	public static String getCertificateFriendlyName (Context c, String filename) {
-		if(!TextUtils.isEmpty(filename)) {
+    public static String getCertificateFriendlyName (Context c, String filename) {
+        if(!TextUtils.isEmpty(filename)) {
 			try {
 				X509Certificate cert = (X509Certificate) getCertificatesFromFile(filename)[0];
                 String friendlycn = getCertificateFriendlyName(cert);
                 friendlycn = getCertificateValidityString(cert, c.getResources()) + friendlycn;
                 return friendlycn;
-
 			} catch (Exception e) {
-				VpnStatus.logError("Could not read certificate" + e.getLocalizedMessage());
+                Log.e(TAG, "无法显示证书信息: " );
+                VpnStatus.logError("Could not read certificate" + e.getLocalizedMessage());
 			}
 		}
 		return c.getString(R.string.cannotparsecert);

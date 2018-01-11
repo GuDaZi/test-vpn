@@ -41,7 +41,6 @@ public class ProfileManager {
         if (instance == null)
             return null;
         return instance.profiles.get(key);
-
     }
 
 

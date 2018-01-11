@@ -8,10 +8,18 @@ package de.blinkt.openvpn.activities;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.support.v4n.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.fragments.AboutFragment;
@@ -32,6 +40,7 @@ public class MainActivity extends BaseActivity {
     private ScreenSlidePagerAdapter mPagerAdapter;
     private SlidingTabLayout mSlidingTabLayout;
     private TabBarView mTabs;
+    private static final String TAG = "MainActivity";
 
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +74,7 @@ public class MainActivity extends BaseActivity {
 
         mTabs = (TabBarView) findViewById(R.id.sliding_tabs);
         mTabs.setViewPager(mPager);
+
     }
 
     private static final String FEATURE_TELEVISION = "android.hardware.type.television";
@@ -113,7 +123,6 @@ public class MainActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		System.out.println(data);
-
 	}
 
 }

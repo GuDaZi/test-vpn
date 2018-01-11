@@ -10,6 +10,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -127,7 +128,7 @@ public class VPNLaunchHelper {
 
     }
 
-
+    private static final String TAG = "VPNLaunchHelper";
     public static void startOpenVpn(VpnProfile startprofile, Context context) {
         Intent startVPN = startprofile.prepareStartService(context);
         if (startVPN != null) {
@@ -135,6 +136,7 @@ public class VPNLaunchHelper {
                 //noinspection NewApi
                 context.startForegroundService(startVPN);
             else
+                Log.e(TAG, "startOpenVpn: succeed" );
                 context.startService(startVPN);
 
         }

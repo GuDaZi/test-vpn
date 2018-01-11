@@ -27,11 +27,11 @@ public class LogWindow extends BaseActivity {
                     .add(R.id.container, new LogFragment())
                     .commit();
         }
-
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
+
 }

@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Toast;
 
 import de.blinkt.openvpn.R;
@@ -51,16 +52,18 @@ public class FileSelect extends BaseActivity {
 	private boolean mNoInline;
 	private boolean mShowClear;
 	private boolean mBase64Encode;
-	
-		
+
+	private static final String TAG = "FileSelect";
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState); 
 		setContentView(R.layout.file_dialog);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+		
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             checkPermission();
 
+		Log.e(TAG, "FileSelect has run " );
+		
         mData = getIntent().getStringExtra(START_DATA);
 		if(mData==null)
 			mData=Environment.getExternalStorageDirectory().getPath();

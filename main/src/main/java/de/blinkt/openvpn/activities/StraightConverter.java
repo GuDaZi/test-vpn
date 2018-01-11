@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012-2016 Arne Schwabe
+ * Copyright (c) 2012-2018 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -9,7 +9,6 @@ package de.blinkt.openvpn.activities;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -67,7 +66,7 @@ import de.blinkt.openvpn.views.FileSelectLayout;
 
 import static de.blinkt.openvpn.views.FileSelectLayout.FileSelectCallback;
 
-public class ConfigConverter extends BaseActivity implements FileSelectCallback, View.OnClickListener {
+public class StraightConverter extends BaseActivity implements FileSelectCallback, View.OnClickListener {
 
     public static final String IMPORT_PROFILE = "de.blinkt.openvpn.IMPORT_PROFILE";
     private static final int RESULT_INSTALLPKCS12 = 7;
@@ -275,7 +274,7 @@ public class ConfigConverter extends BaseActivity implements FileSelectCallback,
                     -1,                         // port of server requesting the cert, -1 if unavailable
                     mAliasName);                       // alias to preselect, null if unavailable
         } catch (ActivityNotFoundException anf) {
-            Builder ab = new AlertDialog.Builder(this);
+            Builder ab = new Builder(this);
             ab.setTitle(R.string.broken_image_cert_title);
             ab.setMessage(R.string.broken_image_cert);
             ab.setPositiveButton(android.R.string.ok, null);
@@ -594,7 +593,6 @@ public class ConfigConverter extends BaseActivity implements FileSelectCallback,
             }
         }
 
-
         mResult.mCaFilename = embedFile(mResult.mCaFilename, Utils.FileType.CA_CERTIFICATE, false);
         mResult.mClientCertFilename = embedFile(mResult.mClientCertFilename, Utils.FileType.CLIENT_CERTIFICATE, false);
         mResult.mClientKeyFilename = embedFile(mResult.mClientKeyFilename, Utils.FileType.KEYFILE, false);
@@ -655,7 +653,7 @@ public class ConfigConverter extends BaseActivity implements FileSelectCallback,
         }
 
 
-        final android.content.Intent intent = getIntent();
+        final Intent intent = getIntent();
 
         if (intent != null) {
             doImportIntent(intent);
@@ -732,7 +730,7 @@ public class ConfigConverter extends BaseActivity implements FileSelectCallback,
 
             @Override
             protected void onPreExecute() {
-                mProgress = new ProgressBar(ConfigConverter.this);
+                mProgress = new ProgressBar(StraightConverter.this);
                 addViewToLog(mProgress);
             }
 
@@ -800,7 +798,7 @@ public class ConfigConverter extends BaseActivity implements FileSelectCallback,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                TextView tv = new TextView(ConfigConverter.this);
+                TextView tv = new TextView(StraightConverter.this);
                 mLogEntries.add(logmessage);
                 tv.setText(logmessage);
 

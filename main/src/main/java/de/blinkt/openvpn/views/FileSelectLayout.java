@@ -32,24 +32,24 @@ import static android.os.Build.VERSION_CODES;
 public class FileSelectLayout extends LinearLayout implements OnClickListener {
 
     private static final String TAG = "FileSelectLayout";
+
+    //解析结果
     public void parseResponse(Intent data, Context c) {
+        Log.e(TAG, "data.getData(): " + data.getData());
+        try {
+            //HEDA 1/08
+            String newData = Utils.getFilePickerResult(fileType, data, c);
+            if (newData != null)
+                setData(newData, c);
 
-        Log.e(TAG, "data.getData(): " +  data.getData());
-        
-            try {
-                //HEDA
-                String newData = Utils.getFilePickerResult(fileType, data, c);
-                if (newData!=null)
-                    setData(newData, c);
-
-                if (newData == null) {
-                    String fileData = data.getStringExtra(FileSelect.RESULT_DATA);
-                    setData(fileData, c);
-                }
-
-            } catch (IOException | SecurityException e) {
-                VpnStatus.logException(e);
+            if (newData == null) {
+                String fileData = data.getStringExtra(FileSelect.RESULT_DATA);
+                setData(fileData, c);
             }
+
+        } catch (IOException | SecurityException e) {
+            VpnStatus.logException(e);
+        }
     }
 
     public interface FileSelectCallback {
@@ -71,7 +71,6 @@ public class FileSelectLayout extends LinearLayout implements OnClickListener {
     private TextView mDataDetails;
     private Button mShowClearButton;
 
-
     public FileSelectLayout(Context context, AttributeSet attrset) {
         super(context, attrset);
 
@@ -83,8 +82,7 @@ public class FileSelectLayout extends LinearLayout implements OnClickListener {
         ta.recycle();
     }
 
-    public FileSelectLayout (Context context, String title, boolean isCertificate, boolean showClear)
-    {
+    public FileSelectLayout(Context context, String title, boolean isCertificate, boolean showClear) {
         super(context);
 
         setupViews(title, isCertificate);
@@ -110,11 +108,10 @@ public class FileSelectLayout extends LinearLayout implements OnClickListener {
         mShowClearButton.setOnClickListener(this);
     }
 
-    public void setClearable(boolean clearable)
-    {
+    public void setClearable(boolean clearable) {
         mShowClear = clearable;
-        if (mShowClearButton != null && mData !=null)
-            mShowClearButton.setVisibility(mShowClear? VISIBLE : GONE);
+        if (mShowClearButton != null && mData != null)
+            mShowClearButton.setVisibility(mShowClear ? VISIBLE : GONE);
 
     }
 
@@ -126,7 +123,7 @@ public class FileSelectLayout extends LinearLayout implements OnClickListener {
     }
 
     public void getCertificateFileDialog() {
-        Log.e(TAG, "getCertificateFileDialog: " + "44444444444444444444444" );
+        Log.e(TAG, "getCertificateFileDialog: " + "44444444444444444444444");
         Intent startFC = new Intent(getContext(), FileSelect.class);
         startFC.putExtra(FileSelect.START_DATA, mData);
         startFC.putExtra(FileSelect.WINDOW_TITLE, mTitle);
@@ -161,7 +158,7 @@ public class FileSelectLayout extends LinearLayout implements OnClickListener {
             }
 
             // Show clear button if it should be shown
-            mShowClearButton.setVisibility(mShowClear? VISIBLE : GONE);
+            mShowClearButton.setVisibility(mShowClear ? VISIBLE : GONE);
         }
 
     }
@@ -169,16 +166,15 @@ public class FileSelectLayout extends LinearLayout implements OnClickListener {
     @Override
     public void onClick(View v) {
         if (v == mSelectButton) {
-            Intent startFilePicker=null;
-            Log.e(TAG, "mTaskId: " + mTaskId );
+            Intent startFilePicker = null;
+            Log.e(TAG, "mTaskId: " + mTaskId);
             if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-                //从这里拿到了intent
+                //HEDA
                 startFilePicker = Utils.getFilePickerIntent(getContext(), fileType);
             }
 
             if (startFilePicker != null) {
-                Log.e(TAG, "chaos: " + "3333333333333333333333" );
-
+                Log.e(TAG, "chaos: " + "3333333333333333333333");
                 mFragment.startActivityForResult(startFilePicker, mTaskId);
             } else {
                 getCertificateFileDialog();
@@ -187,9 +183,6 @@ public class FileSelectLayout extends LinearLayout implements OnClickListener {
             setData(null, getContext());
         }
     }
-
-
-
 
     public void setShowClear() {
         mShowClear = true;
